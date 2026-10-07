@@ -1,0 +1,298 @@
+/* =====================================================
+   style.css - Weather Dashboard
+   1. Variables   2. Reset & base   3. Header
+   4. Search      5. States (loading / error)
+   6. Weather     7. Footer         8. Animations
+   9. Responsive design (media queries)
+   ===================================================== */
+
+/* ---------- 1. CSS VARIABLES ---------- */
+:root {
+    /* Background of the page - JavaScript changes data-theme on <body> to switch */
+    --bg-start: #1e3a8a;
+    --bg-end: #2563eb;
+
+    --card-bg: #ffffff;
+    --text: #1f2937;
+    --muted: #4b5563;          /* dark enough for good contrast on white */
+    --primary: #1d4ed8;
+    --primary-dark: #1e40af;
+    --error-bg: #fee2e2;
+    --error-text: #991b1b;
+    --radius: 18px;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    --transition: 0.3s ease;
+}
+
+/* Weather themes (the <body data-theme="..."> attribute decides which one is used) */
+body[data-theme="clear-day"] { --bg-start: #1e3a8a; --bg-end: #2563eb; }
+body[data-theme="clear-night"] { --bg-start: #0f172a; --bg-end: #312e81; }
+body[data-theme="cloudy"] { --bg-start: #334155; --bg-end: #64748b; }
+body[data-theme="fog"] { --bg-start: #3f4a5a; --bg-end: #6b7280; }
+body[data-theme="rain"] { --bg-start: #1e293b; --bg-end: #1d4ed8; }
+body[data-theme="snow"] { --bg-start: #1e3a5f; --bg-end: #5b86b0; }
+body[data-theme="storm"] { --bg-start: #111827; --bg-end: #4c1d95; }
+
+/* ---------- 2. RESET & BASE ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    color: #fff;
+    line-height: 1.5;
+    background-color: var(--bg-end);
+    background-image: linear-gradient(160deg, var(--bg-start), var(--bg-end));
+    overflow-x: hidden;                 /* safety: never scroll sideways */
+    transition: background var(--transition);
+}
+
+main { flex: 1; width: 100%; }
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+[hidden] { display: none !important; }  /* make the hidden attribute always win */
+
+.visually-hidden {                      /* hidden visually, but still read by screen readers */
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.skip-link {
+    position: absolute;
+    left: 12px;
+    top: -60px;
+    background: #fff;
+    color: var(--primary-dark);
+    padding: 8px 14px;
+    border-radius: 8px;
+    z-index: 10;
+    transition: top var(--transition);
+}
+.skip-link:focus { top: 12px; }
+
+/* Visible keyboard focus for every interactive element */
+:focus-visible { outline: 3px solid #fde047; outline-offset: 3px; }
+
+a { color: #fff; }
+
+/* ---------- 3. HEADER ---------- */
+.site-header { text-align: center; padding: 40px 0 24px; }
+.logo { font-size: 3.2rem; line-height: 1; animation: float 4s ease-in-out infinite; }
+.site-header h1 {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+}
+.subtitle { font-size: clamp(0.95rem, 2.6vw, 1.15rem); opacity: 0.95; margin-top: 6px; }
+
+/* ---------- 4. SEARCH ---------- */
+.search-section { margin: 10px 0 24px; text-align: center; }
+.search-heading { font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; }
+
+.search-form {
+    display: flex;
+    gap: 10px;
+    max-width: 560px;
+    margin: 0 auto;
+}
+.search-form input {
+    flex: 1;
+    min-width: 0;                       /* lets the input shrink on small screens */
+    padding: 14px 18px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--text);
+    background: #fff;
+    border: 3px solid transparent;
+    border-radius: 50px;
+    box-shadow: var(--shadow);
+    transition: border-color var(--transition);
+}
+.search-form input::placeholder { color: #6b7280; }
+.search-form input:focus { outline: none; border-color: #fde047; }
+
+.btn {
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    color: #fff;
+    background: var(--primary);
+    border: 3px solid #fff;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: transform var(--transition), background var(--transition);
+}
+.btn:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-2px); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.quick-cities { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 16px; }
+.chip {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+}
+.chip:hover:not(:disabled) { background: rgba(255, 255, 255, 0.32); transform: translateY(-2px); }
+.chip:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ---------- 5. STATES: LOADING & ERROR ---------- */
+.loading { text-align: center; padding: 40px 0; }
+.spinner {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 14px;
+    border: 6px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+}
+
+.error-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 560px;
+    margin: 10px auto 20px;
+    padding: 16px 20px;
+    color: var(--error-text);
+    background: var(--error-bg);
+    border-left: 6px solid #dc2626;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    font-weight: 600;
+    animation: slideUp 0.4s ease;
+}
+.error-icon { font-size: 1.5rem; }
+.error-box p { overflow-wrap: anywhere; }
+
+/* ---------- 6. WEATHER DISPLAY ---------- */
+.weather { padding-bottom: 30px; animation: slideUp 0.6s ease; }
+
+.current-card {
+    text-align: center;
+    color: var(--text);
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 30px 20px;
+}
+.location-name { font-size: clamp(1.5rem, 5vw, 2.2rem); overflow-wrap: anywhere; }
+.location-sub { color: var(--muted); font-size: 1.05rem; overflow-wrap: anywhere; }
+.datetime { color: var(--muted); font-size: 0.95rem; margin-top: 6px; }
+
+.weather-icon { font-size: clamp(4.5rem, 16vw, 6.5rem); line-height: 1.2; margin-top: 10px; }
+.temperature {
+    font-size: clamp(3rem, 12vw, 4.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--primary);
+}
+.condition { font-size: clamp(1.2rem, 4vw, 1.6rem); font-weight: 600; margin-top: 4px; }
+.feels-like { color: var(--muted); margin-top: 4px; }
+
+.section-label { margin: 26px 0 12px; font-size: 1.1rem; }
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+}
+.info-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 0;
+    padding: 18px 10px;
+    color: var(--text);
+    background: var(--card-bg);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+.info-card:hover { transform: translateY(-5px); box-shadow: 0 16px 34px rgba(0, 0, 0, 0.25); }
+.info-icon { font-size: 1.8rem; }
+.info-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+.info-value { font-size: 1.3rem; font-weight: 700; overflow-wrap: anywhere; }
+
+/* ---------- 7. FOOTER ---------- */
+.site-footer {
+    text-align: center;
+    padding: 22px 0;
+    font-size: 0.9rem;
+    background: rgba(0, 0, 0, 0.25);
+}
+
+/* ---------- 8. ANIMATIONS ---------- */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* People who prefer less motion get no animations */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ---------- 9. RESPONSIVE DESIGN ---------- */
+/* Tablet */
+@media (max-width: 768px) {
+    .site-header { padding: 30px 0 18px; }
+    .info-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+}
+
+/* Large phones */
+@media (max-width: 600px) {
+    .container { padding: 0 16px; }
+    .current-card { padding: 24px 14px; }
+    .info-grid { gap: 10px; }
+}
+
+/* Phones: search box stacks, cards stack in ONE column */
+@media (max-width: 480px) {
+    .search-form { flex-direction: column; }
+    .btn { width: 100%; }
+    .info-grid { grid-template-columns: 1fr; }
+    .info-card {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 14px 16px;
+        text-align: left;
+    }
+    .info-label { flex: 1; margin-top: 0; }
+    .info-icon { font-size: 1.5rem; }
+    .info-value { font-size: 1.15rem; text-align: right; }
+}
+
+/* Very small phones (e.g. 320px) */
+@media (max-width: 360px) {
+    .container { padding: 0 12px; }
+    .chip { padding: 7px 12px; font-size: 0.85rem; }
+}

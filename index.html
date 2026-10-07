@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Weather Dashboard - check current weather conditions anywhere in the world.">
+    <title>Weather Dashboard</title>
+    <!-- Emoji favicon (no image file needed) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌤️</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="clear-day">
+
+    <!-- Lets keyboard users jump straight to the content -->
+    <a class="skip-link" href="#main">Skip to weather</a>
+
+    <!-- ================= HEADER ================= -->
+    <header class="site-header">
+        <div class="container">
+            <div class="logo" aria-hidden="true">🌤️</div>
+            <h1>Weather Dashboard</h1>
+            <p class="subtitle">Check current weather conditions anywhere in the world</p>
+        </div>
+    </header>
+
+    <main id="main" class="container">
+
+        <!-- ================= SEARCH AREA ================= -->
+        <section class="search-section" aria-labelledby="searchHeading">
+            <h2 id="searchHeading" class="search-heading">Search for a city</h2>
+
+            <!-- A form lets BOTH the Search button and the Enter key submit the search -->
+            <form id="cityForm" class="search-form" novalidate>
+                <label for="cityInput" class="visually-hidden">Enter city name</label>
+                <input type="text" id="cityInput" name="city" placeholder="Enter city name, e.g. Chennai"
+                       autocomplete="off" maxlength="100">
+                <button type="submit" id="searchBtn" class="btn">Search</button>
+            </form>
+
+            <!-- Quick city buttons (they run the same search) -->
+            <nav class="quick-cities" id="quickCities" aria-label="Popular cities">
+                <button type="button" class="chip" data-city="Chennai">Chennai</button>
+                <button type="button" class="chip" data-city="Hyderabad">Hyderabad</button>
+                <button type="button" class="chip" data-city="Bangalore">Bangalore</button>
+                <button type="button" class="chip" data-city="Mumbai">Mumbai</button>
+                <button type="button" class="chip" data-city="Delhi">Delhi</button>
+                <button type="button" class="chip" data-city="London">London</button>
+                <button type="button" class="chip" data-city="Tokyo">Tokyo</button>
+                <button type="button" class="chip" data-city="New York">New York</button>
+                <button type="button" class="chip" data-city="Paris">Paris</button>
+            </nav>
+        </section>
+
+        <!-- ================= STATE: LOADING ================= -->
+        <div id="loading" class="loading" role="status" hidden>
+            <div class="spinner" aria-hidden="true"></div>
+            <p>Loading weather...</p>
+        </div>
+
+        <!-- ================= STATE: ERROR ================= -->
+        <!-- role="alert" makes screen readers announce the message -->
+        <div id="errorBox" class="error-box" role="alert" hidden>
+            <span class="error-icon" aria-hidden="true">⚠️</span>
+            <p id="errorText"></p>
+        </div>
+
+        <!-- ================= STATE: SUCCESS (weather) ================= -->
+        <!-- aria-live="polite" announces updates when new weather appears -->
+        <section id="weatherSection" class="weather" aria-live="polite" aria-label="Current weather" hidden>
+
+            <article class="current-card">
+                <h2 id="locationName" class="location-name"></h2>
+                <p id="locationSub" class="location-sub"></p>
+                <p class="datetime">
+                    <span id="localDate"></span> &bull; <span id="localTime"></span>
+                </p>
+
+                <div id="weatherIcon" class="weather-icon" role="img" aria-label=""></div>
+                <p id="temperature" class="temperature"></p>
+                <p id="condition" class="condition"></p>
+                <p id="feelsLike" class="feels-like"></p>
+            </article>
+
+            <h3 class="section-label">Weather details</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <span class="info-icon" aria-hidden="true">💧</span>
+                    <span class="info-label">Humidity</span>
+                    <span class="info-value" id="humidity"></span>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon" aria-hidden="true">💨</span>
+                    <span class="info-label">Wind Speed</span>
+                    <span class="info-value" id="windSpeed"></span>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon" aria-hidden="true">🧭</span>
+                    <span class="info-label">Wind Direction</span>
+                    <span class="info-value" id="windDirection"></span>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon" aria-hidden="true">☁️</span>
+                    <span class="info-label">Cloud Cover</span>
+                    <span class="info-value" id="cloudCover"></span>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon" aria-hidden="true">🌡️</span>
+                    <span class="info-label">Pressure</span>
+                    <span class="info-value" id="pressure"></span>
+                </div>
+            </div>
+
+            <h3 class="section-label">Location details</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <span class="info-icon" aria-hidden="true">🏙️</span>
+                    <span class="info-label">Region</span>
+                    <span class="info-value" id="region"></span>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon" aria-hidden="true">📍</span>
+                    <span class="info-label">Latitude</span>
+                    <span class="info-value" id="latitude"></span>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon" aria-hidden="true">📍</span>
+                    <span class="info-label">Longitude</span>
+                    <span class="info-value" id="longitude"></span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a></p>
+            <p>Weather Dashboard &copy; <span id="year">2026</span> &bull; College Project (HTML, CSS, JavaScript)</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
